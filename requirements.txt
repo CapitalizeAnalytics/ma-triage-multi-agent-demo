@@ -1,0 +1,6 @@
+# The two triage scripts
+anthropic>=2.2.0
+
+# Only needed to run the sample app's own tests (sample/demo-store-api/tests)
+flask>=3.0
+pytest>=8.0

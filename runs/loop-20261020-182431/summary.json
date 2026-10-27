@@ -1,0 +1,12 @@
+{
+  "model": "claude-opus-5-5",
+  "turns": 4,
+  "tool_calls": 9,
+  "stop_reason": "end_turn",
+  "seconds": 26.9,
+  "usage": {
+    "input_tokens": 10423,
+    "output_tokens": 2509
+  },
+  "list_cost_usd": 0.0919
+}

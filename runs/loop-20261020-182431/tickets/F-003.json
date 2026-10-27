@@ -1,0 +1,8 @@
+{
+  "finding_id": "F-003",
+  "verdict": "not_exploitable",
+  "severity": "none",
+  "title": "False positive: test seed data formatted into INSERT in unit test",
+  "evidence": "demo-store-api/tests/test_search.py:13 builds an INSERT with an f-string, but the only values are the loop index `i` and entries from the hardcoded SEED_EMAILS constant (line 7). The function seed() is called only from the test at line 20, against a temporary SQLite file (lines 18-19). This test code is not part of the deployed app (main.py imports nothing from tests/), and no attacker-controlled input reaches it.",
+  "recommended_fix": "No security fix needed. As optional hygiene, use a parameterized query: conn.execute(\"INSERT INTO orders VALUES (?, ?, 10.0, 'OPEN')\", (i, email)). You could also exclude tests/ from this rule or suppress it there."
+}

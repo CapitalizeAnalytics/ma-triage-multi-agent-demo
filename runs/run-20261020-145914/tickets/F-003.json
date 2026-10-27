@@ -1,0 +1,8 @@
+{
+  "evidence": "tests/test_search.py:13 builds an INSERT with an f-string from `i` (an enumerate index) and `email`. Both come from SEED_EMAILS, a hardcoded list at line 7 (\"ana@example.com\", \"li@example.com\"). The function seed() (lines 10-14) is called only from the test at line 20, against a temporary SQLite file under pytest's tmp_path (lines 18-19). This is unit test code. No HTTP request, environment variable or other outside input reaches it, and it is not part of the deployed app (app/ does not import it).",
+  "finding_id": "F-003",
+  "recommended_fix": "No security fix needed. Optionally use conn.executemany(\"INSERT INTO orders VALUES (?, ?, 10.0, 'OPEN')\", list(enumerate(SEED_EMAILS))) so the tests model safe patterns, or exclude tests/ from this scanner rule. While here, add a negative test for F-001 (e.g. customer=\"' OR '1'='1\" should return 0 rows) to guard the fix.",
+  "severity": "none",
+  "title": "False positive: test fixture builds INSERT from hardcoded seed constants",
+  "verdict": "not_exploitable"
+}

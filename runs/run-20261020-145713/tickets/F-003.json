@@ -1,0 +1,8 @@
+{
+  "evidence": "tests/test_search.py:13 formats `i` and `email` into an INSERT. Both come from `enumerate(SEED_EMAILS)` (tests/test_search.py:12), and SEED_EMAILS is a hard-coded list of two literal addresses (tests/test_search.py:7). The code runs only inside a pytest fixture, against a temporary DB under `tmp_path` (tests/test_search.py:18-20). It is not part of the deployed Flask app (app/main.py), and no external input reaches it.",
+  "finding_id": "F-003",
+  "recommended_fix": "No security fix needed. Optionally switch to `conn.execute(\"INSERT INTO orders VALUES (?, ?, 10.0, 'OPEN')\", (i, email))` to model good practice and quiet the scanner, or exclude tests/ from this rule. While editing this file, add a test that sends an injection payload to /orders/search (see F-001).",
+  "severity": "none",
+  "title": "False positive: test seed data formatted into SQL from hard-coded constants",
+  "verdict": "not_exploitable"
+}

@@ -1,0 +1,8 @@
+{
+  "finding_id": "F-002",
+  "verdict": "not_exploitable",
+  "severity": "none",
+  "title": "False positive: /reports/status builds SQL only from a hardcoded allowlist",
+  "evidence": "demo-store-api/app/main.py:28 reads the user-controlled `status` parameter into `key`. But at :29 `key` is used only as a lookup key in REPORT_STATUSES (:8-12), and any unknown value falls back to the constant \"OPEN\". So the `status` value put into the query at :31 can only be one of \"OPEN\", \"SHIPPED\" or \"REFUNDED\", all hardcoded constants. User input never reaches the SQL string.",
+  "recommended_fix": "No security fix is needed. As a defensive cleanup, switch to a parameterized query (WHERE status = ?) so the code stays safe if the allowlist changes later and the scanner stops flagging it."
+}

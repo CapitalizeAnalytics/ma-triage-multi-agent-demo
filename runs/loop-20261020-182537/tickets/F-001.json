@@ -1,0 +1,8 @@
+{
+  "finding_id": "F-001",
+  "verdict": "exploitable",
+  "severity": "critical",
+  "title": "SQL injection in public /orders/search via 'customer' query parameter",
+  "evidence": "demo-store-api/app/main.py:15-18 - the route /orders/search reads `customer` straight from request.args. Nothing validates or authenticates it, and the docstring at line 17 says it backs the storefront's public order lookup page. main.py:20 puts `customer` into the SQL string with an f-string inside single quotes. main.py:21 runs it with conn.execute() against sqlite3 (app/db.py:8-11). Example payload: customer=' OR '1'='1 returns every order (ids, totals, statuses) for all customers. UNION-based payloads such as ' UNION SELECT name,sql,type FROM sqlite_master-- can read the schema and other tables. sqlite3's execute() runs only one statement, so stacked queries won't work, but reading any data is enough. Anyone can reach this without logging in.",
+  "recommended_fix": "Use a parameterized query: conn.execute(\"SELECT id, total, status FROM orders WHERE customer_email = ?\", (customer,)). Also think about whether a public endpoint should return orders by email alone without verifying the customer (IDOR / data exposure), and add rate limiting. Add a regression test that sends a quote payload."
+}

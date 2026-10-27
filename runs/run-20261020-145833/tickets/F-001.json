@@ -1,0 +1,8 @@
+{
+  "evidence": "app/main.py:15-16: the route `/orders/search` is registered with no auth decorator or check, and the docstring at line 17 says it backs the storefront's *public* order lookup page. app/main.py:18: `customer = request.args.get(\"customer\", \"\")` is taken straight from the HTTP query string. Nothing validates or escapes it. app/main.py:20: it is put into the SQL with an f-string inside single quotes: `... WHERE customer_email = '{customer}'`. app/main.py:21: the query runs via `conn.execute(query)`, which is a sqlite3 connection from app/db.py:8-11. app/main.py:22: every returned row goes back to the caller as JSON.\nExploit: `GET /orders/search?customer=' OR '1'='1` returns every order for every customer. A UNION payload such as `' UNION SELECT name, sql, type FROM sqlite_master--` (three columns, matching id/total/status) can read the schema and other tables. sqlite3's `execute()` refuses multiple statements, so stacked queries like `; DROP TABLE` are not possible. The impact is reading data (customer order data and any other table in the DB), with no login needed.",
+  "finding_id": "F-001",
+  "recommended_fix": "Use a parameterized query: `conn.execute(\"SELECT id, total, status FROM orders WHERE customer_email = ?\", (customer,))`. Add a regression test that sends `' OR '1'='1` and asserts that nothing comes back. Separate design issue: even after the fix, this public endpoint returns any customer's orders to anyone who knows or guesses their email. Consider requiring an order number plus email, or a signed-in session, and add rate limiting.",
+  "severity": "high",
+  "title": "SQL injection in public /orders/search via the `customer` query parameter",
+  "verdict": "exploitable"
+}

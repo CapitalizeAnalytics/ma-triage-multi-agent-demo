@@ -1,0 +1,8 @@
+{
+  "evidence": "Source: app/main.py:18 \u2013 `customer = request.args.get(\"customer\", \"\")` comes straight from the HTTP query string and nothing checks it. Sink: app/main.py:20 puts it inside a single-quoted literal with an f-string (`... WHERE customer_email = '{customer}'`), and app/main.py:21 runs it with `conn.execute(query)`. Reachability: the route is `@app.route(\"/orders/search\")` (app/main.py:15) with no auth decorator or check. Its docstring (app/main.py:17) says it backs the storefront's *public* order lookup page. Connection: app/db.py:8-11 is a plain sqlite3 connection with no extra protection. Impact: a value like `' OR '1'='1` returns every order. A `' UNION SELECT ...--` payload can read any table or column in the SQLite DB, including sqlite_master. The route returns the rows as JSON (app/main.py:22), so the attacker sees the stolen data directly. sqlite3's `Connection.execute` runs only one statement, so stacked writes like `; DROP TABLE` are blocked. This is a full read of the database, not a write.",
+  "finding_id": "F-001",
+  "recommended_fix": "Use a parameterized query: `conn.execute(\"SELECT id, total, status FROM orders WHERE customer_email = ?\", (customer,))`. Separately, check whether a public lookup by email alone should expose order data at all: anyone who knows a customer's email can list their orders even after the injection is fixed. Consider requiring an order number plus email, or authentication. Add a regression test that sends `' OR '1'='1` and expects zero rows.",
+  "severity": "high",
+  "title": "Unauthenticated SQL injection in /orders/search via `customer` query parameter",
+  "verdict": "exploitable"
+}

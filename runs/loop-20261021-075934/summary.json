@@ -1,0 +1,54 @@
+{
+  "model": "claude-opus-5-5",
+  "turns": 4,
+  "tool_calls": 9,
+  "stop_reason": "end_turn",
+  "seconds": 24.7,
+  "usage": {
+    "input_tokens": 10250,
+    "output_tokens": 2273
+  },
+  "list_cost_usd": 0.0865,
+  "per_turn": [
+    {
+      "turn": 1,
+      "input_tokens": 1137,
+      "output_tokens": 26,
+      "stop_reason": "tool_use",
+      "tool_calls": [
+        "list_files"
+      ]
+    },
+    {
+      "turn": 2,
+      "input_tokens": 1228,
+      "output_tokens": 274,
+      "stop_reason": "tool_use",
+      "tool_calls": [
+        "read_file",
+        "read_file",
+        "read_file",
+        "read_file",
+        "read_file"
+      ]
+    },
+    {
+      "turn": 3,
+      "input_tokens": 3201,
+      "output_tokens": 1348,
+      "stop_reason": "tool_use",
+      "tool_calls": [
+        "create_ticket_draft",
+        "create_ticket_draft",
+        "create_ticket_draft"
+      ]
+    },
+    {
+      "turn": 4,
+      "input_tokens": 4684,
+      "output_tokens": 625,
+      "stop_reason": "end_turn",
+      "tool_calls": []
+    }
+  ]
+}

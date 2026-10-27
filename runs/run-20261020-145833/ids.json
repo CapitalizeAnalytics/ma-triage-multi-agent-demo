@@ -1,0 +1,33 @@
+{
+  "agent_id": "agent_01YCu5fLMuNcDPfTqkMtKL51",
+  "agent_version": 1,
+  "environment_id": "env_015vWNppSMLJpyV5RfBnQGNP",
+  "session_id": "sesn_01JFCHbt71Eifv5mXyCsoE1W",
+  "files": [
+    {
+      "type": "file",
+      "file_id": "file_011GkypUtgSC955dyFxZuH3K",
+      "mount_path": "demo-store-api/README.md"
+    },
+    {
+      "type": "file",
+      "file_id": "file_01TsrMfrhFPV5bfEEGHJaRTb",
+      "mount_path": "demo-store-api/app/db.py"
+    },
+    {
+      "type": "file",
+      "file_id": "file_01Akz4KGYinnwkuWJ4EekxiU",
+      "mount_path": "demo-store-api/app/main.py"
+    },
+    {
+      "type": "file",
+      "file_id": "file_01TeSD9SKxapExJGNjSj2NKZ",
+      "mount_path": "demo-store-api/tests/test_search.py"
+    },
+    {
+      "type": "file",
+      "file_id": "file_015zNrpz5kFPz6gR2ugKsihN",
+      "mount_path": "scan/findings.json"
+    }
+  ]
+}

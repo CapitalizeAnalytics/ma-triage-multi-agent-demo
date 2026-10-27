@@ -1,0 +1,8 @@
+{
+  "finding_id": "F-003",
+  "verdict": "not_exploitable",
+  "severity": "none",
+  "title": "False positive: f-string SQL in test seed data uses hardcoded constants",
+  "evidence": "demo-store-api/tests/test_search.py:13 builds an INSERT with an f-string. The only interpolated values are the loop index `i` and `email` from the module-level constant SEED_EMAILS (line 7). The seed() helper (lines 10-14) runs only inside the pytest test (lines 17-20), against a temporary database under tmp_path. No HTTP route or production code imports it, and no outside input reaches it.",
+  "recommended_fix": "No security fix needed. Optionally, use `conn.execute(\"INSERT INTO orders VALUES (?, ?, 10.0, 'OPEN')\", (i, email))` so the tests show the safe pattern. You could also exclude tests/ from this rule in the scanner config."
+}

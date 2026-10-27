@@ -1,0 +1,8 @@
+{
+  "finding_id": "F-002",
+  "verdict": "not_exploitable",
+  "severity": "none",
+  "title": "False positive: /reports/status interpolates only allowlisted constant values",
+  "evidence": "demo-store-api/app/main.py:28 reads the user-controlled `status` param into `key`. main.py:29 maps it through the REPORT_STATUSES dict (lines 8-12) with `.get(key, \"OPEN\")`, so `status` can only be one of the hardcoded constants \"OPEN\", \"SHIPPED\" or \"REFUNDED\". User input never reaches the f-string at main.py:31. Separately, the route has no authentication even though its docstring (line 27) says it is for the operations dashboard. That exposes aggregate order counts, but it is not SQL injection.",
+  "recommended_fix": "No injection fix is required. For defense in depth and to quiet the scanner, switch to a parameterized query: conn.execute(\"SELECT COUNT(*) AS n FROM orders WHERE status = ?\", (status,)). Separately, check whether this internal dashboard endpoint should require authentication."
+}

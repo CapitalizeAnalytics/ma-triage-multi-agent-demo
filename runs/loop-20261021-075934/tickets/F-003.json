@@ -1,0 +1,8 @@
+{
+  "finding_id": "F-003",
+  "verdict": "not_exploitable",
+  "severity": "none",
+  "title": "False positive: f-string SQL in test seed data uses constant values only",
+  "evidence": "demo-store-api/tests/test_search.py:13 builds an INSERT with an f-string. The only values are the loop index `i` and `email` from SEED_EMAILS, a hardcoded list of constants (:7, :12). This is a test fixture (seed(), :10-14) that pytest calls on a temporary database (:18-20). It isn't part of the deployed app and takes no external input.",
+  "recommended_fix": "No security fix is needed. Optionally use parameters (VALUES (?, ?, 10.0, 'OPEN')) for consistency, and exclude tests/ from this rule or suppress it there."
+}

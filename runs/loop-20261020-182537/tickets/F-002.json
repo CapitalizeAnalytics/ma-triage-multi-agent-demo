@@ -1,0 +1,8 @@
+{
+  "finding_id": "F-002",
+  "verdict": "not_exploitable",
+  "severity": "none",
+  "title": "False positive: /reports/status SQL value comes from a fixed allowlist",
+  "evidence": "demo-store-api/app/main.py:28 reads the user-supplied `status` key. main.py:29 maps it through the REPORT_STATUSES dict (main.py:8-12) with .get(key, \"OPEN\"), so `status` can only be one of the constants \"OPEN\", \"SHIPPED\" or \"REFUNDED\". User input never reaches the f-string at main.py:31. Any key not in the dict becomes \"OPEN\". No injection is possible.",
+  "recommended_fix": "No security fix is required. For defense in depth, and to silence the scanner, switch to a parameterized query: conn.execute(\"SELECT COUNT(*) AS n FROM orders WHERE status = ?\", (status,)). Separately, check whether this operations-dashboard endpoint should require authentication (no auth is visible)."
+}

@@ -1,0 +1,8 @@
+{
+  "finding_id": "F-003",
+  "verdict": "not_exploitable",
+  "severity": "none",
+  "title": "False positive: string-formatted INSERT in test seed data",
+  "evidence": "demo-store-api/tests/test_search.py:13 builds an INSERT with an f-string, but the values come from the loop index and the hardcoded SEED_EMAILS constant (test_search.py:7, 12). The code runs only in the pytest seed() helper against a temporary DB (tmp_path, lines 18-20). It is not part of any HTTP route, so no attacker input reaches it.",
+  "recommended_fix": "No security fix is needed. Optionally use placeholders (conn.execute(\"INSERT INTO orders VALUES (?, ?, 10.0, 'OPEN')\", (i, email))) as good practice, or exclude tests/ from this rule."
+}
