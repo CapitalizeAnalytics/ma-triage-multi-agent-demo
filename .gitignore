@@ -1,0 +1,13 @@
+# Secrets (your ANTHROPIC_API_KEY)
+.env
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+venv/
+.venv/
+
+# Other
+node_modules/
+.DS_Store
