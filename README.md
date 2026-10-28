@@ -1,6 +1,6 @@
-# ma-triage-demo
+# Multi-agent AppSec triage on Claude Managed Agents
 
-A training demo of **Claude Managed Agents** and the agent lifecycle, using a
+A reference demo of **Claude Managed Agents** and the agent lifecycle, using a
 realistic AppSec task: triaging SQL injection findings from a static analysis
 scanner.
 
@@ -14,7 +14,7 @@ The same task is built three ways, so you can compare them side by side:
 
 | Script | Built on | Who runs the loop and the tools |
 |---|---|---|
-| `triage_multi.py` | Claude Managed Agents, multiagent | An orchestrator agent hands each finding to its own subagent, in parallel, then has one verifier agent check all the verdicts. Our code runs the code gate and saves the verdicts. This is the demo for the multi-agent orchestration session. |
+| `triage_multi.py` | Claude Managed Agents, multiagent | An orchestrator agent hands each finding to its own subagent, in parallel, then has one verifier agent check all the verdicts. Our code runs the code gate and saves the verdicts. |
 | `triage_demo.py` | Claude Managed Agents | Anthropic runs the agent loop and the read-only file tools in a cloud sandbox with no network access. Our code only handles the ticket tool. |
 | `triage_loop.py` | Plain Messages API | Our code runs everything: the loop, the file tools, the stop condition, the file access rules, error handling and history. |
 
@@ -32,7 +32,7 @@ All built-in tools are off except the ones listed. The orchestrator can only
 delegate to these two agents: it can't define its own subagents, and dynamic
 workflows are off.
 
-The run follows slide 12 of the deck: scan, orchestrator, one subagent per
+The run goes: scan, orchestrator, one subagent per
 finding in parallel, verifier, code gate, verdicts. The orchestrator, the
 verifier and the code gate run every time; the orchestrator chooses which
 findings get a subagent.
@@ -46,10 +46,15 @@ findings get a subagent.
    what they got wrong.
 3. **Code gate**: the orchestrator calls `submit_verdict` for each finding. Our
    code checks that every `file:line` exists and that the quoted code matches
-   that line, and rejects the verdict if not. This is a fact check, so it's code,
-   not an agent.
+   that line (the whole line, or at least 15 characters of it), and rejects the
+   verdict if not, saying what the line really contains. This is a fact check,
+   so it's code, not an agent. It checks that the evidence is real, not that the
+   verdict is right; that's the verifier's job and the reviewer's.
 4. **Verdicts**: each verdict that passes is saved as a draft ticket for a person
-   to review.
+   to review. Who decided each finding and whether the verifier agreed are taken
+   from the session's own events, not from the orchestrator's word. The
+   orchestrator's claim is kept next to them, and the result table flags any
+   difference.
 5. **Result**: a table of each verdict next to the answer the sample was built
    with, and the cost of each thread. The session has a $5 spend cap
    (`BUDGET_CENTS`).
@@ -58,9 +63,31 @@ While it runs, the terminal shows each subagent starting, what the orchestrator
 sends it and what it reports back. In the Claude Console, open the session to see
 every thread's own steps.
 
+The script also guards against the usual ways a run goes wrong: if our tool
+code throws, the error goes back to the agent as a rejection instead of
+leaving the session waiting forever; the script stops watching after
+`MAX_MINUTES`; and the spend cap ends the session whatever happens.
+
+### When is multi-agent worth it?
+
+With five findings, one agent does this job well: `triage_demo.py` triages the
+same scan for a fraction of the cost. The multi-agent version shows the
+pattern you'd reach for when one agent isn't enough:
+
+- **Many findings.** Each subagent starts with a clean context, so a long scan
+  doesn't crowd one agent's context, and the findings run in parallel.
+- **An independent check.** The verifier has a different prompt and its own
+  context, so it isn't anchored on the reasoning it's checking.
+- **Effort that fits the finding.** Cheap findings get no subagent; hard ones
+  get several.
+
+For a real scan with hundreds of findings, you'd also group findings that hit
+the same vulnerable line, cap how many subagents run at once, and split the
+scan across sessions.
+
 ## What happens in `triage_demo.py`
 
-The steps follow the order of the deck:
+The steps:
 
 1. **Agent**: model, instructions (system prompt) and tools. All built-in
    tools are switched off except `read`, `glob` and `grep`, plus one custom
@@ -82,10 +109,13 @@ Agents.
 python3 -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-export ANTHROPIC_API_KEY=sk-ant-...  # Windows: set ANTHROPIC_API_KEY=sk-ant-...
+cp .env.example .env                # Windows: copy .env.example .env
 ```
 
-Never commit your API key. `.env` is already in `.gitignore`.
+Then open `.env` and set `ANTHROPIC_API_KEY`. The scripts load `.env` on
+start; a variable already set in your shell takes precedence. Never commit
+your API key: `.env` is in `.gitignore`, and only `.env.example` (with blank
+values) is committed.
 
 ## Running it
 
@@ -108,20 +138,25 @@ Each run creates a new timestamped folder under `runs/`:
   tokens, estimated cost, per-turn breakdown), `messages.json` (full
   conversation history) and `tickets/`.
 
-The `runs/` folder already has a few example runs, so you can see the output
-without running anything.
+`runs/` is in `.gitignore`, so your runs and their IDs stay on your machine.
 
 **Reusing an agent:** `triage_demo.py` and `triage_multi.py` create new agents,
-an environment and uploaded files every time. To reuse them from an earlier run
-*in your own account*, pass that run's `ids.json`:
+an environment and uploaded files every time. To reuse the agents and
+environment from an earlier run *in your own account*, copy their IDs from that
+run's `ids.json` into `.env`: `ORCHESTRATOR_ID`, `TRIAGER_ID`, `VERIFIER_ID`
+and `ENVIRONMENT_ID` for `triage_multi.py`, or `AGENT_ID` and `ENVIRONMENT_ID`
+for `triage_demo.py`. Set the three multi-agent IDs together, from the same
+run: the orchestrator is tied to the triager and verifier it was created with.
+If you edit an agent's instructions, model or subagents in the script, the run
+stops instead of quietly using the old agent: clear that ID in `.env` and a new
+agent is created. The sample files are still uploaded fresh each run. To reuse
+the uploaded files too, pass the whole `ids.json` instead, which takes
+precedence over `.env`:
 
 ```bash
 python triage_demo.py runs/run-YYYYMMDD-HHMMSS/ids.json
 python triage_multi.py runs/multi-YYYYMMDD-HHMMSS/ids.json
 ```
-
-The IDs in the committed example runs belong to the original author's
-account, so they won't work with a different API key.
 
 ## The sample
 
@@ -133,9 +168,8 @@ account, so they won't work with a different API key.
 - `sample/scan/findings.json`: a fictional scanner report with five
   SQL injection findings.
 
-The five findings are designed to have different answers. For the multi-agent
-session's exercise, don't show this table until after people post their
-predictions.
+The five findings are designed to have different answers. If you use this as
+a group exercise, have people predict each verdict before you show this table.
 
 | Finding | Location | Expected verdict |
 |---|---|---|
@@ -163,6 +197,7 @@ triage_multi.py       multi-agent version (orchestrator, subagents, verifier)
 triage_demo.py        Managed Agents version
 triage_loop.py        hand-written agent loop version
 requirements.txt      Python packages
+.env.example          template for your .env (API key, IDs to reuse)
 sample/               the fictional repo and scan report the agent triages
-runs/                 output of each run (example runs included)
+runs/                 output of each run (created when you run a script, not committed)
 ```

@@ -1,8 +1,0 @@
-{
-  "finding_id": "F-002",
-  "verdict": "not_exploitable",
-  "severity": "none",
-  "title": "False positive: /reports/status interpolates only allowlisted constant values",
-  "evidence": "demo-store-api/app/main.py:28 reads the user-controlled `status` parameter into `key`. Line 29 maps it through the REPORT_STATUSES dict (lines 8-12), and any unknown key falls back to the constant \"OPEN\". The value interpolated at line 31 is therefore always one of the hardcoded strings \"OPEN\", \"SHIPPED\" or \"REFUNDED\", never attacker input. Nothing the attacker sends reaches the SQL text. Side note, not part of this finding: the route has no authentication even though its docstring (line 27) calls it an operations dashboard endpoint. It only leaks aggregate counts.",
-  "recommended_fix": "No security fix needed. As defense in depth, and to keep the scanner quiet, switch to a bound parameter: `conn.execute(\"SELECT COUNT(*) AS n FROM orders WHERE status = ?\", (status,))`. That way a future edit to the allowlist logic can't bring the injection back."
-}

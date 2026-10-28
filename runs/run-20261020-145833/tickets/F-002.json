@@ -1,8 +1,0 @@
-{
-  "evidence": "app/main.py:28: the user-controlled `key = request.args.get(\"status\", \"open\")` is used only as a dictionary lookup key. app/main.py:29: `status = REPORT_STATUSES.get(key, \"OPEN\")`. The result is always one of the hardcoded constants defined at app/main.py:8-12 (\"OPEN\", \"SHIPPED\", \"REFUNDED\"), with \"OPEN\" as the default. app/main.py:31: only that constant is put into the f-string, so attacker input can never reach the SQL text. Nothing else writes to REPORT_STATUSES; it is module-level and only read. Side note: this route has no authentication either (app/main.py:25-26), even though its docstring calls it an operations dashboard. Anyone can see the order counts, but that is not SQL injection.",
-  "finding_id": "F-002",
-  "recommended_fix": "No security fix needed for CWE-89. Optional hardening so scanners stop flagging it and it stays safe if the allowlist changes later: `conn.execute(\"SELECT COUNT(*) AS n FROM orders WHERE status = ?\", (status,))`. Separately, decide whether this ops-dashboard endpoint should require authentication.",
-  "severity": "none",
-  "title": "False positive: /reports/status interpolates only allowlisted constant values",
-  "verdict": "not_exploitable"
-}

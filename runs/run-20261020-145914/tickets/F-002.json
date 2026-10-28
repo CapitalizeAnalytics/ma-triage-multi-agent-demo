@@ -1,8 +1,0 @@
-{
-  "evidence": "app/main.py:28 reads the user-controlled `status` parameter into `key`. Line 29 does not use `key` in the query. It looks it up with REPORT_STATUSES.get(key, \"OPEN\"), and REPORT_STATUSES (lines 8-12) is a module-level dict of fixed literals: \"OPEN\", \"SHIPPED\", \"REFUNDED\". Whatever the input, `status` is one of those three constants. None of them contains a quote or other SQL metacharacter. Line 31 interpolates only `status`, so attacker input never reaches the SQL text, and line 32 runs the query. Nothing else in the repo changes REPORT_STATUSES.",
-  "finding_id": "F-002",
-  "recommended_fix": "No security fix needed. As cleanup, switch to a bound parameter (conn.execute(\"... WHERE status = ?\", (status,))). That keeps the code safe if the allowlist is ever replaced with user input, and it stops the scanner flagging this line. Separately, check whether this operations-dashboard route should require authentication. No auth is visible in app/main.py, but that is outside this finding.",
-  "severity": "none",
-  "title": "False positive: /reports/status interpolates only allowlisted constants into SQL",
-  "verdict": "not_exploitable"
-}

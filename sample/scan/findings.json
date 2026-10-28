@@ -1,5 +1,5 @@
 {
-  "scanner": "SampleScan 1.0 (fictional scanner for this training sample)",
+  "scanner": "SampleScan 1.0 (fictional scanner for this demo sample)",
   "repository": "demo-store-api",
   "findings": [
     {

@@ -1,4 +1,4 @@
-# Secrets (your ANTHROPIC_API_KEY)
+# Secrets (your ANTHROPIC_API_KEY and IDs)
 .env
 
 # Python
@@ -11,3 +11,6 @@ venv/
 # Other
 node_modules/
 .DS_Store
+
+# Run output (IDs, transcripts, tickets)
+runs/

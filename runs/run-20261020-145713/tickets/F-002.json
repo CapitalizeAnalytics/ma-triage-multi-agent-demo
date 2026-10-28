@@ -1,8 +1,0 @@
-{
-  "evidence": "Source: app/main.py:28 reads the user value `key = request.args.get(\"status\", \"open\")`. But app/main.py:29 maps it through `REPORT_STATUSES.get(key, \"OPEN\")`, a fixed dict defined at app/main.py:8-12. So `status` can only be one of the constants \"OPEN\", \"SHIPPED\", \"REFUNDED\". Unknown keys fall back to \"OPEN\". The f-string at app/main.py:31 never receives attacker-controlled text, and none of the constants contain quotes or SQL syntax. Side note: the route (app/main.py:25) has no auth check, although its docstring says it is for the operations dashboard. That exposes aggregate order counts but is not SQL injection.",
-  "finding_id": "F-002",
-  "recommended_fix": "No security fix needed for injection. As hardening, switch to a bound parameter (`WHERE status = ?`, `(status,)`) so the code stays safe if the allowlist is ever removed, and the scanner stops flagging it. Separately, check whether /reports/status should require authentication.",
-  "severity": "none",
-  "title": "False positive: /reports/status interpolates only allowlisted constants",
-  "verdict": "not_exploitable"
-}

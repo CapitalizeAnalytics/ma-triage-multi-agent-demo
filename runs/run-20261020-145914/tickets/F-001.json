@@ -1,8 +1,0 @@
-{
-  "evidence": "app/main.py:15-16 registers the public route /orders/search. The docstring at line 17 says the storefront's public order lookup page uses it, and I found no auth decorator or before_request hook anywhere in app/main.py. Line 18 reads `customer` straight from request.args with no validation. Line 20 puts it inside a single-quoted literal with an f-string: f\"SELECT id, total, status FROM orders WHERE customer_email = '{customer}'\". Line 21 runs it with conn.execute(query) and no bound parameters. The connection comes from app/db.py:8-11 (sqlite3, row_factory=sqlite3.Row). Line 22 sends every returned row back to the client as JSON.\nExample: ?customer=' OR '1'='1 returns every order for every customer. ?customer=' UNION SELECT name, sql, type FROM sqlite_master-- returns the schema, and the same UNION trick reads any other table (3 columns needed). sqlite3's execute() runs only one statement, so stacked write queries like '; DROP TABLE are blocked. Reading all data without logging in is still fully possible, and the response shows the results directly.",
-  "finding_id": "F-001",
-  "recommended_fix": "Use a parameterized query: conn.execute(\"SELECT id, total, status FROM orders WHERE customer_email = ?\", (customer,)). Also check that the storefront lookup should really be unauthenticated. Even with the injection fixed, anyone can list another customer's orders by email (IDOR/enumeration). Consider requiring an order number or token, or a logged-in session, plus rate limiting. Add a regression test that sends a quote/UNION payload and checks that it returns no rows.",
-  "severity": "critical",
-  "title": "Unauthenticated SQL injection in GET /orders/search via 'customer' parameter",
-  "verdict": "exploitable"
-}

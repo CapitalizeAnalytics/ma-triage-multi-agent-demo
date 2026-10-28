@@ -1,8 +1,0 @@
-{
-  "finding_id": "F-001",
-  "verdict": "exploitable",
-  "severity": "critical",
-  "title": "SQL injection in public /orders/search via 'customer' query parameter",
-  "evidence": "demo-store-api/app/main.py:15-18: the route /orders/search (docstring line 17 says it serves the storefront's public order lookup page) reads `customer` straight from request.args with no validation. No authentication decorator or check is present (lines 15-22). main.py:20 puts it into the SQL string with an f-string inside single quotes: `... WHERE customer_email = '{customer}'`. main.py:21 runs it with conn.execute on a sqlite3 connection (app/db.py:8-11). A payload such as `customer=' OR '1'='1` returns every order (id, total, status) for every customer. A UNION SELECT payload could read other tables in the SQLite DB. sqlite3's execute() rejects multiple statements, so stacked queries are unlikely, but data disclosure alone is serious. The route is unauthenticated, so any internet user can reach it.",
-  "recommended_fix": "Use a parameterized query: conn.execute(\"SELECT id, total, status FROM orders WHERE customer_email = ?\", (customer,)). Also think about whether a public lookup by email alone should expose orders at all, since knowing an email is enough to enumerate that customer's orders. Requiring an order number plus email, or authentication, would close that. Add a regression test that sends a quote/OR payload and expects zero rows."
-}

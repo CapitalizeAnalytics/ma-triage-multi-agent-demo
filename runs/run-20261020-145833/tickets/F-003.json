@@ -1,8 +1,0 @@
-{
-  "evidence": "tests/test_search.py:13: the f-string INSERT puts in `i` (an integer from enumerate) and `email` from `SEED_EMAILS`. That is a hardcoded constant list at tests/test_search.py:7 ([\"ana@example.com\", \"li@example.com\"]). tests/test_search.py:10-14: `seed()` is called only from the test at line 20, against a temporary DB in pytest's tmp_path (lines 18-19). This is test-only code, not shipped or reachable over HTTP, and no external input reaches it.",
-  "finding_id": "F-003",
-  "recommended_fix": "No security fix needed. Optionally switch to `conn.execute(\"INSERT INTO orders VALUES (?, ?, 10.0, 'OPEN')\", (i, email))` to model good practice and quiet the scanner, or exclude tests/ from this rule. Also worth adding a test for the F-001 injection payload in this file.",
-  "severity": "none",
-  "title": "False positive: f-string SQL in test seed helper uses hardcoded fixture data",
-  "verdict": "not_exploitable"
-}

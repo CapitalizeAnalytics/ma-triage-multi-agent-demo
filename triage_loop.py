@@ -1,4 +1,4 @@
-"""AppSec triage agent with a hand-written agent loop (training demo for Checkmarx R&D).
+"""AppSec triage agent with a hand-written agent loop (reference demo).
 
 Same task as triage_demo.py, built on the plain Messages API instead of Managed Agents.
 Here our own code runs the loop and every tool, so we also own the history, the
@@ -9,12 +9,14 @@ import pathlib
 import time
 
 from anthropic import Anthropic
+from dotenv import load_dotenv
 
 HERE = pathlib.Path(__file__).parent
 SAMPLE = (HERE / "sample").resolve()
 RUN_DIR = HERE / "runs" / time.strftime("loop-%Y%m%d-%H%M%S")
 (RUN_DIR / "tickets").mkdir(parents=True)
 
+load_dotenv(HERE / ".env")  # ANTHROPIC_API_KEY and any IDs to reuse; real environment variables win
 client = Anthropic()  # reads the API key from the ANTHROPIC_API_KEY environment variable
 MODEL = "claude-opus-5-5"
 MAX_TURNS = 20        # our own stop condition: the API has no turn limit of its own

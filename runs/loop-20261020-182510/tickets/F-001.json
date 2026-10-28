@@ -1,8 +1,0 @@
-{
-  "finding_id": "F-001",
-  "verdict": "exploitable",
-  "severity": "critical",
-  "title": "SQL injection in public /orders/search via 'customer' query parameter",
-  "evidence": "demo-store-api/app/main.py:15-16 registers GET /orders/search. The docstring at line 17 says the public storefront order lookup page uses it, and the code applies no authentication. Line 18 reads `customer` straight from request.args with no validation. Line 20 puts it into a single-quoted SQL literal with an f-string, and line 21 runs it on a sqlite3 connection (app/db.py:8-11). A request like `?customer=' OR '1'='1` returns every order: id, total and status for all customers. A UNION payload such as `' UNION SELECT name, sql, type FROM sqlite_master--` exposes the schema and other tables. sqlite3's execute() runs only one statement, so stacked queries are blocked, but unauthenticated reading of the whole database still works.",
-  "recommended_fix": "Use a parameterized query: `conn.execute(\"SELECT id, total, status FROM orders WHERE customer_email = ?\", (customer,))`. Also think about whether an unauthenticated lookup by email alone should return order data at all. Requiring an order number plus email, or a logged-in session, would stop people enumerating orders. Add a regression test that sends `' OR '1'='1` and expects zero rows."
-}
