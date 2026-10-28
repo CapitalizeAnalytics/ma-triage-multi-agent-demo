@@ -1,0 +1,16 @@
+# Secrets (your ANTHROPIC_API_KEY and IDs)
+.env
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+venv/
+.venv/
+
+# Other
+node_modules/
+.DS_Store
+
+# Run output (IDs, transcripts, tickets)
+runs/

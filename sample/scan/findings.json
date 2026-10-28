@@ -1,0 +1,46 @@
+{
+  "scanner": "SampleScan 1.0 (fictional scanner for this demo sample)",
+  "repository": "demo-store-api",
+  "findings": [
+    {
+      "id": "F-001",
+      "rule": "CWE-89: SQL injection",
+      "severity": "high",
+      "file": "app/main.py",
+      "line": 20,
+      "message": "SQL query is built with string formatting from a variable."
+    },
+    {
+      "id": "F-002",
+      "rule": "CWE-89: SQL injection",
+      "severity": "high",
+      "file": "app/main.py",
+      "line": 31,
+      "message": "SQL query is built with string formatting from a variable."
+    },
+    {
+      "id": "F-003",
+      "rule": "CWE-89: SQL injection",
+      "severity": "high",
+      "file": "tests/test_search.py",
+      "line": 13,
+      "message": "SQL query is built with string formatting from a variable."
+    },
+    {
+      "id": "F-004",
+      "rule": "CWE-89: SQL injection",
+      "severity": "high",
+      "file": "app/main.py",
+      "line": 42,
+      "message": "SQL query is built with string formatting from a variable."
+    },
+    {
+      "id": "F-005",
+      "rule": "CWE-89: SQL injection",
+      "severity": "high",
+      "file": "app/jobs.py",
+      "line": 13,
+      "message": "SQL query is built with string formatting from a variable."
+    }
+  ]
+}
